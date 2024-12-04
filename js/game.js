@@ -54,10 +54,9 @@ const timerElement = document.querySelector("#timer");
 const hintMsg = document.querySelector(".hint")
 const bucket = document.querySelector('.bucket')
 const modal = document.querySelector("#msg");
-const winLoseMsg = document.querySelector("#win-lose-message");
+const modalMessage = document.querySelector("#modal-message");
 const msgBtn = document.querySelector("#msgBtn")
 const winCounter=  document.querySelector("#wins-counter")
-const backgroundAudio = new Audio("audio/background-sound.mp3")
 const maxGuesses = 7;
 
 // ----------------------------------------------Variables----------------------------------------------
@@ -78,10 +77,7 @@ randomWord[3] = food;
 let selectedWord = randomWord[Math.floor(Math.random() * randomWord.length)].toUpperCase();
 
 // create an array to store the length of the selected word
-let guessedWord = [];
-for (let i = 0; i < selectedWord.length; i++) {
-    guessedWord.push("");
-}
+let guessedWord = Array(selectedWord.length).fill("");
 
 let wrongGuesses = 0;
 let wins = 0;
@@ -122,16 +118,16 @@ function characterInBucket() {
 // A function telling the user what is the type of the word
 function hintFunc() {
     if (selectedWord === randomWord[0]) {
-        hintMsg.textContent = `The Word is a Place`
+        hintMsg.textContent = `The Word type is a Place`
     }
     else if (selectedWord === randomWord[1]) {
-        hintMsg.textContent = `The Word is a Machine`
+        hintMsg.textContent = `The Word type is a Machine`
     }
     else if (selectedWord === randomWord[2]) {
-        hintMsg.textContent = `The Word is a Disney Character`
+        hintMsg.textContent = `The Word type is a Disney Character`
     }
     else if (selectedWord === randomWord[3]) {
-        hintMsg.textContent = `The Word is a Food or Dish`
+        hintMsg.textContent = `The Word type is a Food or Dish`
     }
 }
 // E.G. selected word = place --> POLAND , first condition will be implemented
@@ -139,24 +135,12 @@ function hintFunc() {
 characterInBucket();
 hintFunc();
 
-
-function init() {
-    wordDiv.innerHTML = "";
-    for (let i = 0; i < selectedWord.length; i++) {
-        const letterDiv = document.createElement("div");
-        letterDiv.classList.add("word-letter");
-        wordDiv.appendChild(letterDiv);
-    }
-    backgroundAudio.play()
-}
-backgroundAudio.loop = true;
-// selected word = place (POLAND) , it will be _ _ _ _ _ _ (6)
 // A function to update water 
 function updateWater() {
     let waterHeight = (wrongGuesses / maxGuesses) * 100;
     waterElement.style.height = `${waterHeight}%`;
     if (wrongGuesses === maxGuesses) {
-        loseMsg()
+        showModal(`Game Over! The word was: ${selectedWord}`);
     }
 }
 /* E.G. wrong guesses = 4 and max guesses = 7
@@ -168,14 +152,14 @@ function resetTimer() {
     clearInterval(timerInterval);
     timer = 30;
     timerElement.textContent = timer;
-    timerElement.style.backgroundColor = "rgba(173, 242, 173, .7)"; 
+    timerElement.style.backgroundColor = ""; 
     timerInterval = setInterval(() => {
         timer--;
         timerElement.textContent = timer;
         if (timer <= 15) {
             timerElement.style.backgroundColor = "red";
         }
-        // if user didn't click on a letter before the time runs out , it will be consideer as wrong answer
+        // Restart timer after incrementing wrong guesses
         if (timer === 0) {
             wrongGuesses++;
             updateWater();
@@ -184,23 +168,27 @@ function resetTimer() {
     }, 1000);
 }
 
-// messages
-function loseMsg() {
-    winLoseMsg.textContent = `Game Over! The word was: ${selectedWord}`;
+// Show message
+function showModal(message) {
+    modalMessage.textContent = message;
     modal.style.display = "flex";
 }
-function winMsg(){
-    winLoseMsg.textContent= `Congratulations! You guessed the word! ${selectedWord}`;
-}
 
-// Close 
-function closeMsg() {
+// Close Modal
+function closeModal() {
     modal.style.display = "none";
-    resetGame();
 }
 
 // Initialize Word Display
-
+function init() {
+    wordDiv.innerHTML = "";
+    for (let i = 0; i < selectedWord.length; i++) {
+        const letterDiv = document.createElement("div");
+        letterDiv.classList.add("word-letter");
+        wordDiv.appendChild(letterDiv);
+    }
+    
+}
 
 function resetGame() {
     wrongGuesses = 0;
@@ -218,10 +206,7 @@ function resetGame() {
     randomWord[2] = disneyChar;
     randomWord[3] = food;
 
-    guessedWord = [];
-for (let i = 0; i < selectedWord.length; i++) {
-    guessedWord.push("");
-}
+    guessedWord = Array(selectedWord.length).fill("");
 
     // Reset word divs (will be empty and create divs based on word length)
     init();
@@ -230,7 +215,7 @@ for (let i = 0; i < selectedWord.length; i++) {
     letters.forEach((letter) => {
         const parent = letter.parentNode;
         parent.style.pointerEvents = "auto"; 
-        parent.style.backgroundColor = "";   
+        parent.style.backgroundColor = "";  
         parent.style.opacity = "1";         
     });
 
@@ -247,17 +232,17 @@ for (let i = 0; i < selectedWord.length; i++) {
 
 // Handle Letter Click
 function handleLetterClick(event) {
-    let clickedLetter = event.target.textContent;
-    let check = selectedWord.includes(clickedLetter);
-    let letterDiv = event.target.parentNode;
+    const clickedLetter = event.target.textContent;
+    const isCorrect = selectedWord.includes(clickedLetter);
+    const letterDiv = event.target.parentNode;
 
-   
+    clearInterval(timerInterval);  
     resetTimer();
     letterDiv.classList.add("disabled");
     letterDiv.style.opacity = ".5";
     letterDiv.style.pointerEvents = "none";
 
-    if (check) {
+    if (isCorrect) {
         letterDiv.style.backgroundColor = "green";
         for (let i = 0; i < selectedWord.length; i++) {
             if (selectedWord[i] === clickedLetter) {
@@ -268,7 +253,7 @@ function handleLetterClick(event) {
         if (guessedWord.join("") === selectedWord) {
             wins++;
             winCounter.textContent=`Wins: ${wins}`
-            winMsg()
+            showModal("Congratulations! You guessed the word! " + selectedWord);
             if (wins >= 3) {
                 solveButton.disabled = false;
             }
@@ -286,25 +271,24 @@ function handleLetterClick(event) {
 
 revealButton.addEventListener("click", () => {
     const index = guessedWord.indexOf(""); 
-    
+    if (index !== -1) {
         guessedWord[index] = selectedWord[index];
         wordDiv.children[index].textContent = selectedWord[index];
 
-     // Find the letter in the letters list that corresponds to the revealed letter
+        // Find the letter in the letters list that corresponds to the revealed letter
         letters.forEach((letterElement) => {
             if (letterElement.textContent.toUpperCase() === selectedWord[index]) {
                 const parent = letterElement.parentNode;
-                parent.style.backgroundColor = "green"; // Mark it green
-                parent.style.pointerEvents = "none"; // Disable clicking
+                parent.style.backgroundColor = "green"; 
+                parent.style.pointerEvents = "none"; 
                 parent.style.opacity = ".5";
             }
         });
-    // find first empty value in guessed array
-    //E.G. index = 3 , if the letter = the letter in selected word, do the style above
+    }
 
     revealButton.classList.remove("help-btn");
     revealButton.classList.add("help-btn-click");
-    revealButton.disabled = true;// Disable button after revealing a letter
+    revealButton.disabled = true;
 });
 
 markWrongButton.addEventListener("click", () => {
@@ -315,7 +299,7 @@ markWrongButton.addEventListener("click", () => {
         const parent = letterElement.parentNode;
         const letter = letterElement.textContent.toUpperCase();
 
-        // Check if the letter is not in the selected word and not  disabled
+        // Check if the letter is not in the selected word and not already disabled
         if (!selectedWord.includes(letter) && wrongCount < 3 && parent.style.pointerEvents !== "none") {
             parent.style.backgroundColor = "red"; 
             parent.style.opacity = ".5";          
@@ -325,12 +309,12 @@ markWrongButton.addEventListener("click", () => {
     });
     markWrongButton.classList.remove("help-btn");
     markWrongButton.classList.add("help-btn-click");
-    markWrongButton.disabled = true; 
+    markWrongButton.disabled = true; // Disable the button after marking wrong letters
 });
 
 solveButton.addEventListener("click", () => {
     waterElement.style.height = '0%';
-    wrongGuesses=0;
+    wrongGuesses=0
     solveButton.classList.remove("help-btn3");
     solveButton.classList.add("help-btn-click");
     solveButton.disabled = true;
@@ -338,7 +322,10 @@ solveButton.addEventListener("click", () => {
 
 
 // Event Listeners
-msgBtn.addEventListener("click",  closeMsg );
+msgBtn.addEventListener("click", () => {
+    closeModal();
+    resetGame();
+});
 letters.forEach((letter) => {
     letter.addEventListener("click", handleLetterClick);
 });

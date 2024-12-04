@@ -27,7 +27,6 @@ body {
     cursor: pointer;
     animation: breath 4s infinite;
 }
-
 /*key frames*/
 @keyframes breath {
 
@@ -113,7 +112,9 @@ body {
     border: 5px solid #06a826;
     border-top: none;
     border-radius: 10px;
-    
+    overflow: hidden;
+
+    /* Center the image in the bucket */
 }
 
 .water {
@@ -219,14 +220,29 @@ body {
     background-color: red;
 }
 
-/*win counter*/
+@keyframes breath {
+
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: .5;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
 .wins-counter {
     position: fixed;
     bottom: 20px;
     right: 20px;
     font-size: 30px;
     font-weight: bold;
-    color: rgb(137, 42, 161);
+   
+    color: rgb(142, 8, 154);
     padding: 10px;
     border-radius: 5px;
 }
@@ -234,4 +250,5 @@ body {
 .disabled {
     pointer-events: none;
     opacity: 0.5;
+    
 }
