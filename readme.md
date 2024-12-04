@@ -4,7 +4,7 @@
 # <h2> About ToyStory Guess to Survive
 
 ToyStory: Guess to Survive is an exhilarating and suspense-filled game where players embark on a thrilling mission to save their favorite Toy Story characters from an impending watery disaster. As the water level rises with every wrong guess, players must correctly guess letters to unlock a hidden word. The game challenges players with a variety of categories, including food, cities, machines, and Disney characters, making each round unique and exciting. The clock is ticking, and with every correct guess, players move closer to victory, but one mistake could mean the toys meet their watery fate. Quick thinking, sharp memory, and a dash of bravery are essential to rescue the Toy Story crew and emerge victorious!
-[Getting Started](https://murtadha88.github.io/WordRush-Game/)
+[Getting Started](https://saloom2021.github.io/ToyStory-Guess-to-Survive-Game/)
 
 # <h2> Assestent
 * W3School for error Solutions
